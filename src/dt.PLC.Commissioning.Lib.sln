@@ -1,0 +1,55 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.10.35122.118
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "dt.PLC.Commissioning.Lib", "PLC.Commissioning.Lib\PLC.Commissioning.Lib.csproj", "{9E18A464-AE8A-4187-8FF0-255AD640A44A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "dt.PLC.Commissioning.Lib.App", "PLC.Commissioning.Lib.App\PLC.Commissioning.Lib.App.csproj", "{3239DAD7-41E4-40DB-A351-9788CF814DD8}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "dt.PLC.Commissioning.Lib.Abstractions", "submodules\Abstractions\src\PLC.Commissioning.Lib.Abstractions\PLC.Commissioning.Lib.Abstractions.csproj", "{E221B31A-251C-40CD-8DAF-E6384CB3A8FD}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "dt.PLC.Commissioning.Lib.Siemens", "submodules\Siemens\src\PLC.Commissioning.Lib.Siemens\PLC.Commissioning.Lib.Siemens.csproj", "{DFE9D928-F6CD-45DB-A5DC-6AB401257589}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "dt.PLC.Commissioning.Lib.Siemens.Tests", "submodules\Siemens\src\PLC.Commissioning.Lib.Siemens.Tests\PLC.Commissioning.Lib.Siemens.Tests.csproj", "{AFF5356A-4AD3-4603-93D2-71074E579E82}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JsonRPC", "JsonRPC\JsonRPC.csproj", "{EA610935-D7F3-40A8-9090-82149D126576}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9E18A464-AE8A-4187-8FF0-255AD640A44A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9E18A464-AE8A-4187-8FF0-255AD640A44A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9E18A464-AE8A-4187-8FF0-255AD640A44A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9E18A464-AE8A-4187-8FF0-255AD640A44A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3239DAD7-41E4-40DB-A351-9788CF814DD8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3239DAD7-41E4-40DB-A351-9788CF814DD8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3239DAD7-41E4-40DB-A351-9788CF814DD8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3239DAD7-41E4-40DB-A351-9788CF814DD8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E221B31A-251C-40CD-8DAF-E6384CB3A8FD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E221B31A-251C-40CD-8DAF-E6384CB3A8FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E221B31A-251C-40CD-8DAF-E6384CB3A8FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E221B31A-251C-40CD-8DAF-E6384CB3A8FD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DFE9D928-F6CD-45DB-A5DC-6AB401257589}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DFE9D928-F6CD-45DB-A5DC-6AB401257589}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DFE9D928-F6CD-45DB-A5DC-6AB401257589}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DFE9D928-F6CD-45DB-A5DC-6AB401257589}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AFF5356A-4AD3-4603-93D2-71074E579E82}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AFF5356A-4AD3-4603-93D2-71074E579E82}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AFF5356A-4AD3-4603-93D2-71074E579E82}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AFF5356A-4AD3-4603-93D2-71074E579E82}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EA610935-D7F3-40A8-9090-82149D126576}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EA610935-D7F3-40A8-9090-82149D126576}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EA610935-D7F3-40A8-9090-82149D126576}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EA610935-D7F3-40A8-9090-82149D126576}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2C61233B-4D67-4FF4-B3A5-FFA446B0BD7B}
+	EndGlobalSection
+EndGlobal
