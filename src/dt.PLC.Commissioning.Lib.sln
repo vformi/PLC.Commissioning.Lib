@@ -13,8 +13,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PLC.Commissioning.Lib.Sieme
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PLC.Commissioning.Lib.Siemens.Tests", "submodules\Siemens\src\PLC.Commissioning.Lib.Siemens.Tests\PLC.Commissioning.Lib.Siemens.Tests.csproj", "{AFF5356A-4AD3-4603-93D2-71074E579E82}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Siemens.WebserverAPI", "JsonRPC\Siemens.WebserverAPI.csproj", "{EA610935-D7F3-40A8-9090-82149D126576}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
