@@ -3,8 +3,6 @@ using Serilog;
 using System.Collections.Generic;
 using PLC.Commissioning.Lib.Enums;
 using PLC.Commissioning.Lib.Abstractions;
-using Siemens.Engineering.HW;
-using System.Linq;
 
 namespace PLC.Commissioning.Lib.Siemens.App
 {
@@ -27,7 +25,7 @@ namespace PLC.Commissioning.Lib.Siemens.App
                 {"Mode", "With ACK"},
             };
 
-            List<string> parametersToRead = new List<string> {"Mode"};
+            List<string> parametersToRead = new List<string> { "Mode" };
             Dictionary<string, object> DAPparametersToSet = new Dictionary<string, object>
             {
                 {"Code type 1", "Code39"},
@@ -43,15 +41,15 @@ namespace PLC.Commissioning.Lib.Siemens.App
             {
                 using (var plc = PLCFactory.CreateController<IPLCControllerSiemens>(Manufacturer.Siemens))
                 {
-                    plc.PrintGSDInformations("C:\\Users\\vformane\\Desktop\\files\\", "DAP");
+                    //plc.PrintGSDInformations("C:\\Users\\vformane\\Desktop\\files\\", "DAP");
                     Console.WriteLine("Press any key to continue...");
                     Console.ReadKey();
 
-                    plc.Configure("C:\\Users\\vformane\\Documents\\coding\\git\\PLC_Automated_System_Testing\\plc-commisioning-lib\\src\\PLC.Commissioning.Lib.App\\configuration.json");
-                    plc.Initialize(safety: true);
-                    var importedDevices = plc.ImportDevice("C:\\Users\\vformane\\OneDrive - Leuze electronic GmbH + Co. KG\\Osobní\\Diplomka\\Siemens\\Blank_project_BCL.aml")
-                        as Dictionary<string, Device>;
-                    plc.Compile();
+                    //plc.Configure("C:\\Users\\vformane\\Documents\\coding\\git\\PLC_Automated_System_Testing\\plc-commisioning-lib\\src\\PLC.Commissioning.Lib.App\\configuration.json");
+                    //plc.Initialize(safety: true);
+                    //var importedDevices = plc.ImportDevice("C:\\Users\\vformane\\OneDrive - Leuze electronic GmbH + Co. KG\\Osobní\\Diplomka\\Siemens\\Blank_project_BCL.aml")
+                    //    as Dictionary<string, Device>;
+                    //plc.Compile();
 
                     // Get the first element of the dictionary
                     /*
@@ -82,8 +80,8 @@ namespace PLC.Commissioning.Lib.Siemens.App
                 Log.Error($"An error occurred: {ex}");
             }
 
-        // Ensure to flush and close the log
-        Log.CloseAndFlush();
+            // Ensure to flush and close the log
+            Log.CloseAndFlush();
         }
     }
 }

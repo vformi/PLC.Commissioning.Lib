@@ -13,7 +13,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PLC.Commissioning.Lib.Sieme
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PLC.Commissioning.Lib.Siemens.Tests", "submodules\Siemens\src\PLC.Commissioning.Lib.Siemens.Tests\PLC.Commissioning.Lib.Siemens.Tests.csproj", "{AFF5356A-4AD3-4603-93D2-71074E579E82}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Siemens.WebserverAPI", "JsonRPC\Siemens.WebserverAPI.csproj", "{EA610935-D7F3-40A8-9090-82149D126576}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PLC.Commissioning.Lib.Siemens.Webserver", "submodules\Webserver\src\PLC.Commissioning.Lib.Siemens.Webserver\PLC.Commissioning.Lib.Siemens.Webserver.csproj", "{F0522999-4416-47E1-B5F3-8F32B5B144B7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -63,14 +63,14 @@ Global
 		{AFF5356A-4AD3-4603-93D2-71074E579E82}.Release|Any CPU.Build.0 = Release|Any CPU
 		{AFF5356A-4AD3-4603-93D2-71074E579E82}.Release|x64.ActiveCfg = Release|x64
 		{AFF5356A-4AD3-4603-93D2-71074E579E82}.Release|x64.Build.0 = Release|x64
-		{EA610935-D7F3-40A8-9090-82149D126576}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EA610935-D7F3-40A8-9090-82149D126576}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EA610935-D7F3-40A8-9090-82149D126576}.Debug|x64.ActiveCfg = Debug|x64
-		{EA610935-D7F3-40A8-9090-82149D126576}.Debug|x64.Build.0 = Debug|x64
-		{EA610935-D7F3-40A8-9090-82149D126576}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EA610935-D7F3-40A8-9090-82149D126576}.Release|Any CPU.Build.0 = Release|Any CPU
-		{EA610935-D7F3-40A8-9090-82149D126576}.Release|x64.ActiveCfg = Release|x64
-		{EA610935-D7F3-40A8-9090-82149D126576}.Release|x64.Build.0 = Release|x64
+		{F0522999-4416-47E1-B5F3-8F32B5B144B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F0522999-4416-47E1-B5F3-8F32B5B144B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F0522999-4416-47E1-B5F3-8F32B5B144B7}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{F0522999-4416-47E1-B5F3-8F32B5B144B7}.Debug|x64.Build.0 = Debug|Any CPU
+		{F0522999-4416-47E1-B5F3-8F32B5B144B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F0522999-4416-47E1-B5F3-8F32B5B144B7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F0522999-4416-47E1-B5F3-8F32B5B144B7}.Release|x64.ActiveCfg = Release|Any CPU
+		{F0522999-4416-47E1-B5F3-8F32B5B144B7}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

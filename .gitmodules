@@ -4,3 +4,6 @@
 [submodule "src/submodules/Abstractions"]
 	path = src/submodules/Abstractions
 	url = https://github.com/vformi/dt.PLC.Commissioning.Lib.Abstractions
+[submodule "src/submodules/Webserver"]
+	path = src/submodules/Webserver
+	url = https://github.com/vformi/dt.PLC.Commissioning.Lib.Siemens.Webserver
