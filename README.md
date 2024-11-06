@@ -3,15 +3,15 @@ This repository was developed for the purpose of automating the testing of PROFI
 
 ## Overview
 
-This repository contains the main library for commissioning PLCs and includes links to manufacturer-specific libraries as Git submodules. The structure is designed to enable modular, automated testing across different PLC manufacturers, with each submodule providing manufacturer-specific functionality.
+This repository contains the main library for commissioning PLCs and includes links to manufacturer-specific libraries and other functionalities as Git submodules. The structure is designed to enable modular, automated testing across different PLC manufacturers, with each submodule providing manufacturer-specific functionality.
 
 ## Repositories Structure
 
 The project is divided across several repositories:
-- **[PLC.Commissioning.Lib](https://github.com/vformi/dt.PLC.Commissioning.Lib)** (this repository)
-- **[PLC.Commissioning.Lib.Abstractions](https://github.com/vformi/dt.PLC.Commissioning.Lib.Abstractions)**
-- **[PLC.Commissioning.Lib.Siemens](https://github.com/vformi/dt.PLC.Commissioning.Lib.Siemens)**
-- **[PLC.Commissioning.Lib.Siemens.Webserver](https://github.com/vformi/dt.PLC.Commissioning.Lib.Siemens.Webserver)**
+- **[PLC.Commissioning.Lib](https://github.com/vformi/PLC.Commissioning.Lib)** (this repository)
+- **[PLC.Commissioning.Lib.Abstractions](https://github.com/vformi/PLC.Commissioning.Lib.Abstractions)**
+- **[PLC.Commissioning.Lib.Siemens](https://github.com/vformi/PLC.Commissioning.Lib.Siemens)**
+- **[PLC.Commissioning.Lib.Siemens.Webserver](https://github.com/vformi/PLC.Commissioning.Lib.Siemens.Webserver)**
 - Further manufacturers (Rockwell, Beckhoff) in development 
 
 ## Cloning the Project
