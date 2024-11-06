@@ -18,7 +18,7 @@ The project is divided across several repositories:
 
 To clone the main repository with all submodules, use:
 ```bash
-git clone --recurse-submodules https://github.com/vformi/dt.PLC.Commissioning.Lib
+git clone --recurse-submodules https://github.com/vformi/PLC.Commissioning.Lib
 ```
 To update the submodules later, use:
 ```bash
