@@ -11,18 +11,20 @@ This repository contains the main library for commissioning PLCs and includes li
     - Ensure that you have the necessary permissions, including membership in the **Siemens TIA Openness** Windows group, to allow programmatic access to TIA Portal functionalities.
 - **.NET Standard 2.0** or later: Ensure that .NET Standard 2.0 or a compatible version of .NET Core/.NET Framework is installed.
 
+This repository contains the main library for commissioning PLCs and includes links to manufacturer-specific libraries and other functionalities as Git submodules. The structure is designed to enable modular, automated testing across different PLC manufacturers, with each submodule providing manufacturer-specific functionality.
+
 ## Repositories Structure
 The project is divided across several repositories:
-- **[PLC.Commissioning.Lib](https://github.com/vformi/dt.PLC.Commissioning.Lib)** (this repository)
-- **[PLC.Commissioning.Lib.Abstractions](https://github.com/vformi/dt.PLC.Commissioning.Lib.Abstractions)**
-- **[PLC.Commissioning.Lib.Siemens](https://github.com/vformi/dt.PLC.Commissioning.Lib.Siemens)**
-- **[PLC.Commissioning.Lib.Siemens.Webserver](https://github.com/vformi/dt.PLC.Commissioning.Lib.Siemens.Webserver)**
-- Further manufacturers (Rockwell, Beckhoff) possible future extensions
+- **[PLC.Commissioning.Lib](https://github.com/vformi/PLC.Commissioning.Lib)** (this repository)
+- **[PLC.Commissioning.Lib.Abstractions](https://github.com/vformi/PLC.Commissioning.Lib.Abstractions)**
+- **[PLC.Commissioning.Lib.Siemens](https://github.com/vformi/PLC.Commissioning.Lib.Siemens)**
+- **[PLC.Commissioning.Lib.Siemens.Webserver](https://github.com/vformi/PLC.Commissioning.Lib.Siemens.Webserver)**
+- Further manufacturers (Rockwell, Beckhoff) in development 
 
 ## Cloning the Project
 To clone the main repository with all submodules, use:
 ```bash
-git clone --recurse-submodules https://github.com/vformi/dt.PLC.Commissioning.Lib
+git clone --recurse-submodules https://github.com/vformi/PLC.Commissioning.Lib
 ```
 To update the submodules later, use:
 ```bash
