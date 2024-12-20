@@ -1,8 +1,8 @@
 ﻿using System;
+using System.IO;
 using Serilog;
 using PLC.Commissioning.Lib.Enums;
 using PLC.Commissioning.Lib.Abstractions;
-using Siemens.Engineering.Download;
 
 namespace PLC.Commissioning.Lib.App
 {
@@ -10,50 +10,61 @@ namespace PLC.Commissioning.Lib.App
     {
         static void Main(string[] args)
         {
-            // logger 
+            // Setup Serilog
             string logFileName = $"logs/log_{DateTime.Now:yyyyMMdd_HHmmss}.txt";
             Log.Logger = new LoggerConfiguration()
-            .MinimumLevel.Debug()               // Set the minimum log level to Debug
-            .WriteTo.Console()                  // Log to the console
-            .WriteTo.File(logFileName,          // Log to a file with a dynamic name
-                          fileSizeLimitBytes: 10_000_000,       // limit the file size to 10 MB
-                          rollOnFileSizeLimit: true)            // create a new file when the limit is reached
-            .CreateLogger();
-            // Main program execution
+                .MinimumLevel.Debug()
+                .WriteTo.Console()
+                .WriteTo.File(logFileName, fileSizeLimitBytes: 10_000_000, rollOnFileSizeLimit: true)
+                .CreateLogger();
+
+            #region Registry Generation
+            try
+            {
+                // Define paths
+                string applicationPath = "C:\\Users\\Legion\\Documents\\CODING\\git\\projects\\dt.PLC.Commissioning.Lib\\src\\PLC.Commissioning.Lib.App\\bin\\Debug\\net48\\PLC.Commissioning.Lib.App.exe";
+                string whitelistKeyName = "PLC.Commissioning.Lib.App.exe";
+                string outputFilePath = "output.reg";
+
+                // Generate and save registry entry
+                string registryEntry = RegistryService.GenerateRegistryEntry(applicationPath, whitelistKeyName);
+                RegistryService.SaveRegistryEntryToFile(registryEntry, outputFilePath);
+
+                Log.Information("Registry entry generated and saved to {OutputFilePath}", outputFilePath);
+
+                // Execute the registry file with admin privileges
+                RegistryService.ExecuteRegistryFile(outputFilePath);
+
+                Log.Information("Registry file executed successfully.");
+            }
+            catch (Exception ex)
+            {
+                Log.Error("An error occurred during registry handling: {ErrorMessage}", ex.Message);
+            }
+            #endregion
+
+            #region Application Workflow
             try
             {
                 using (var plc = PLCFactory.CreateController<IPLCControllerSiemens>(Manufacturer.Siemens))
                 {
-                    plc.Configure("C:\\Users\\Legion\\Documents\\CODING\\git\\projects\\dt.PLC.Commissioning.Lib\\src\\PLC.Commissioning.Lib.App\\configuration.json");
-                    plc.Initialize(safety: false);
-                    plc.Compile();
-                    plc.Download(DownloadOptions.Hardware | DownloadOptions.Software);
-                    plc.Stop();
-                    
-                    // Pause for the user at the end
-                    Console.WriteLine("Press any key to continue...");
-                    Console.ReadKey();
-
-                    plc.Start(); 
-                } // plc should be disposed here
-
+                    plc.PrintGSDInformations(
+                        @"C:\Users\Legion\Documents\CODING\git\projects\dt.PLC.Commissioning.Lib\src\submodules\Siemens\src\PLC.Commissioning.Lib.Siemens.Tests\TestData\gsd\GSDML-V2.41-LEUZE-BCL248i-20211213.xml");
+                    // Console.ReadKey();
+                    plc.Configure(@"C:\Users\Legion\Documents\CODING\git\projects\dt.PLC.Commissioning.Lib\src\PLC.Commissioning.Lib.App\configuration.json");
+                    plc.Initialize(safety: true);
+                }
             }
-            catch (System.IO.FileNotFoundException ex)
+            catch (FileNotFoundException ex)
             {
-                Log.Error(
-                    "File not found: {FileName}\n"+
-                    "Ensure that the required file or assembly '{FileName}' is available and properly referenced in your project. " +
-                    "This is typically caused by a missing or misconfigured dependency. If you are using TIA Portal, verify that the " +
-                    "'Siemens.Engineering.dll' (Version 17.0.0.0) is installed and available in the expected location.",
-                    ex.FileName ?? "Unknown", ex.FileName
-                );
+                Log.Error("File not found: {FileName}", ex.FileName ?? "Unknown");
             }
             catch (Exception ex)
             {
-                Log.Error($"An error occurred: {ex}");
+                Log.Error("An error occurred: {ErrorMessage}", ex.Message);
             }
+            #endregion
 
-            // Ensure to flush and close the log
             Log.CloseAndFlush();
         }
     }

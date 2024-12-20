@@ -74,3 +74,29 @@ This indicates the required Siemens.Engineering.dll file is missing. To resolve:
   - Copy the Siemens.Engineering.dll  in the TIA Portal Openness application directory.
 
 For more information, refer to the [TIA Portal Openness Documentation (Page 81)](https://cache.industry.siemens.com/dl/files/533/109798533/att_1069908/v1/TIAPortalOpennessenUS_en-US.pdf).
+
+# Single dll publish workflow
+1. Install ILRepack
+```bash
+dotnet tool install -g dotnet-ilrepack 
+```
+
+2. Ensure your project and all dependencies are built successfully and output DLLs are in the bin\Release\netstandard2.0 folder:
+```bash
+dotnet build -c Release
+```
+After running the build, a ilrepack.rsp file will be created in the bin\Release\netstandard2.0 directory.
+This file contains the list of all .dll files to be merged, excluding the already merged output.
+### Steps to reproduce
+1. Build the project:
+```bash
+dotnet build -c Release
+```
+2. Navigate to the output directory:
+```bash
+cd bin\Release\netstandard2.0
+```
+3. Run the ilrepack command:
+```bash
+ilrepack /out:PLC.Commissioning.Lib.Merged.dll "@ilrepack.rsp"
+```

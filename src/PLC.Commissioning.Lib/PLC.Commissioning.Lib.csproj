@@ -1,12 +1,43 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Platforms>AnyCPU;x64</Platforms>
+    <Platforms>x64</Platforms>
+    <Version>1.0.0</Version>
+    <Authors>vformi</Authors>
+    <Description>Library for PLC commissioning</Description>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\submodules\Siemens\src\PLC.Commissioning.Lib.Siemens\PLC.Commissioning.Lib.Siemens.csproj" />
+    <ProjectReference Include="..\submodules\Abstractions\src\PLC.Commissioning.Lib.Abstractions\PLC.Commissioning.Lib.Abstractions.csproj" />
   </ItemGroup>
 
+  <!-- Include Siemens DLLs -->
+  <ItemGroup>
+    <None Include="C:\Program Files\Siemens\Automation\Portal V17\PublicAPI\V17\Siemens.Engineering.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="C:\Program Files\Siemens\Automation\Portal V17\PublicAPI\V17\Siemens.Engineering.Hmi.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <Target Name="GenerateILRepackResponseFile" AfterTargets="Build">
+    <PropertyGroup>
+      <MergedOutputDll>$(OutputPath)PLC.Commissioning.Lib.Merged.dll</MergedOutputDll>
+      <ResponseFile>$(OutputPath)ilrepack.rsp</ResponseFile>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <!-- Collect all DLLs, excluding the merged output DLL -->
+      <DllsToMerge Include="$(OutputPath)*.dll" Exclude="$(MergedOutputDll)" />
+    </ItemGroup>
+
+    <!-- Generate the response file -->
+    <WriteLinesToFile
+            File="$(ResponseFile)"
+            Lines="@(DllsToMerge->'%(FullPath)')"
+            Overwrite="true" />
+  </Target>
 </Project>
