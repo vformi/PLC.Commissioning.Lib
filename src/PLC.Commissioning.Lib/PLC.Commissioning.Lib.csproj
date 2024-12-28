@@ -30,8 +30,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <!-- Collect all DLLs, excluding the merged output DLL -->
-      <DllsToMerge Include="$(OutputPath)*.dll" Exclude="$(MergedOutputDll)" />
+      <!-- Collect all DLLs, excluding the merged output DLL and Siemens DLLs -->
+      <DllsToMerge Include="$(OutputPath)*.dll" Exclude="$(MergedOutputDll);$(OutputPath)Siemens.Engineering.dll;$(OutputPath)Siemens.Engineering.Hmi.dll" />
     </ItemGroup>
 
     <!-- Generate the response file -->

@@ -15,6 +15,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PLC.Commissioning.Lib.Sieme
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PLC.Commissioning.Lib.Siemens.Webserver", "submodules\Webserver\src\PLC.Commissioning.Lib.Siemens.Webserver\PLC.Commissioning.Lib.Siemens.Webserver.csproj", "{F0522999-4416-47E1-B5F3-8F32B5B144B7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PLC.Commissioning.Lib.App.Standalone", "PLC.Commissioning.Lib.App.Standalone\PLC.Commissioning.Lib.App.Standalone.csproj", "{FE61EE9D-100D-44F2-A4D3-7AE7449941EF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -79,6 +81,14 @@ Global
 		{E8661AD6-6A05-40A7-900F-62E2C4F2E126}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E8661AD6-6A05-40A7-900F-62E2C4F2E126}.Release|x64.ActiveCfg = Release|x64
 		{E8661AD6-6A05-40A7-900F-62E2C4F2E126}.Release|x64.Build.0 = Release|x64
+		{FE61EE9D-100D-44F2-A4D3-7AE7449941EF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FE61EE9D-100D-44F2-A4D3-7AE7449941EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FE61EE9D-100D-44F2-A4D3-7AE7449941EF}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{FE61EE9D-100D-44F2-A4D3-7AE7449941EF}.Debug|x64.Build.0 = Debug|Any CPU
+		{FE61EE9D-100D-44F2-A4D3-7AE7449941EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FE61EE9D-100D-44F2-A4D3-7AE7449941EF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FE61EE9D-100D-44F2-A4D3-7AE7449941EF}.Release|x64.ActiveCfg = Release|Any CPU
+		{FE61EE9D-100D-44F2-A4D3-7AE7449941EF}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

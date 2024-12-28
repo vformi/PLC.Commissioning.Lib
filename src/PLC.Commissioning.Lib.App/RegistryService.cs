@@ -85,27 +85,36 @@ namespace PLC.Commissioning.Lib.App
                 throw new FileNotFoundException("The .reg file does not exist.", filePath);
             }
 
-            Process process = new Process
-            {
-                StartInfo = new ProcessStartInfo
-                {
-                    FileName = "regedit.exe",
-                    Arguments = $"/s \"{filePath}\"",
-                    UseShellExecute = true,
-                    Verb = "runas" // Ensures admin privileges
-                }
-            };
-
             try
             {
+                Log.Information("Requesting administrative privileges to execute registry file: {FilePath}", filePath);
+
+                Process process = new Process
+                {
+                    StartInfo = new ProcessStartInfo
+                    {
+                        FileName = "regedit.exe",
+                        Arguments = $"/s \"{filePath}\"",
+                        UseShellExecute = true,
+                        Verb = "runas" // Ensures admin privileges
+                    }
+                };
+
                 process.Start();
                 process.WaitForExit();
+
+                Log.Information("Successfully executed registry file: {FilePath}", filePath);
+            }
+            catch (System.ComponentModel.Win32Exception win32Ex) when (win32Ex.NativeErrorCode == 1223)
+            {
+                // Handle case when user cancels the UAC prompt
+                Log.Warning("Registry execution canceled by the user.");
+                throw new OperationCanceledException("Registry execution was canceled by the user.", win32Ex);
             }
             catch (Exception ex)
             {
-                throw new ApplicationException(
-                    "Failed to execute the registry file. Ensure the program is running with administrative privileges.",
-                    ex);
+                Log.Error("Failed to execute registry file. Error: {ErrorMessage}", ex.Message);
+                throw new ApplicationException("Failed to execute the registry file. Ensure the program is running with administrative privileges.", ex);
             }
         }
     }
