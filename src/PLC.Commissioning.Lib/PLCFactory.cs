@@ -9,35 +9,77 @@ using System;
 namespace PLC.Commissioning.Lib
 {
     /// <summary>
-    /// Factory class responsible for creating PLC controllers based on the specified manufacturer.
+    /// A factory class responsible for creating PLC controllers and configuring logging.
     /// </summary>
-    public class PLCFactory
+    public static class PLCFactory
     {
-        private static LoggingLevelSwitch _levelSwitch = new LoggingLevelSwitch(LogEventLevel.Debug); // Default to Debug
         private static bool _isLoggerConfigured = false;
 
-        /// <summary>
-        /// Configures the logger for the first time, setting up sinks.
-        /// </summary>
-        private static void ConfigureLogger()
-        {
-            if (!_isLoggerConfigured)
-            {
-                Log.Logger = new LoggerConfiguration()
-                    .MinimumLevel.ControlledBy(_levelSwitch) // Use the level switch
-                    .WriteTo.Console()
-                    .WriteTo.File($"logs/log_{DateTime.Now:yyyyMMdd_HHmmss}.txt", rollingInterval: RollingInterval.Day)
-                    .CreateLogger();
+        // Default to Debug level via a global LoggingLevelSwitch
+        private static LoggingLevelSwitch _levelSwitch =
+            new LoggingLevelSwitch(LogEventLevel.Debug);
 
-                _isLoggerConfigured = true;
+        /// <summary>
+        /// Configures Serilog's logging (console, file, and optional Python sink).
+        /// Each call completely re-builds the logger configuration.
+        /// </summary>
+        /// <param name="pythonCallback">
+        ///     If provided, the library will add a Python sink that passes .NET logs
+        ///     to this callback (for bridging into Python).
+        /// </param>
+        /// <param name="writeToConsole">
+        ///     If true, writes logs to console (default: true for .NET usage).
+        /// </param>
+        /// <param name="writeToFile">
+        ///     If true, writes logs to a rolling file (default: true).
+        /// </param>
+        /// <param name="filePath">
+        ///     Custom file path. If null, defaults to logs/log_timestamp.txt.
+        /// </param>
+        /// <param name="logLevel">
+        ///     Optional custom log level. If provided, overrides the current level switch.
+        /// </param>
+        public static void ConfigureLogger(
+            Action<string, string> pythonCallback = null,
+            bool writeToConsole = true,
+            bool writeToFile = true,
+            string filePath = null,
+            LogLevel? logLevel = null)
+        {
+            // If user wants to override the log level, update the global switch
+            if (logLevel.HasValue)
+            {
+                _levelSwitch.MinimumLevel = MapLogLevel(logLevel.Value);
             }
+
+            // Build a fresh logger configuration
+            var loggerConfig = new LoggerConfiguration()
+                .MinimumLevel.ControlledBy(_levelSwitch);
+
+            if (writeToConsole)
+            {
+                loggerConfig.WriteTo.Console();
+            }
+
+            if (writeToFile)
+            {
+                filePath = filePath ?? $"logs/log_{DateTime.Now:yyyyMMdd_HHmmss}.txt";
+                loggerConfig.WriteTo.File(filePath, rollingInterval: RollingInterval.Day);
+            }
+
+            if (pythonCallback != null)
+            {
+                loggerConfig.WriteTo.Sink(new PythonSink(pythonCallback));
+            }
+
+            // Create and assign the logger
+            Log.Logger = loggerConfig.CreateLogger();
+            _isLoggerConfigured = true;
         }
 
         /// <summary>
-        /// Maps the custom LogLevel enum to Serilog's LogEventLevel.
+        /// Converts our custom LogLevel enum to Serilog's LogEventLevel.
         /// </summary>
-        /// <param name="level">The custom log level.</param>
-        /// <returns>The corresponding Serilog log event level.</returns>
         private static LogEventLevel MapLogLevel(LogLevel level)
         {
             switch (level)
@@ -60,54 +102,32 @@ namespace PLC.Commissioning.Lib
         }
 
         /// <summary>
-        /// Sets the logging level dynamically.
+        /// Creates a controller of type T for the specified manufacturer.
+        /// If no logger is configured yet, calls ConfigureLogger() once with default arguments.
         /// </summary>
-        /// <param name="level">The new logging level.</param>
-        private static void SetLogLevel(LogLevel level)
+        public static T CreateController<T>(Manufacturer manufacturer) where T : class, IPLCController
         {
-            _levelSwitch.MinimumLevel = MapLogLevel(level);
-        }
-
-        /// <summary>
-        /// Creates a controller instance of type <typeparamref name="T"/> for the specified <see cref="Manufacturer"/>.
-        /// </summary>
-        /// <typeparam name="T">The type of PLC controller that implements <see cref="IPLCController"/>.</typeparam>
-        /// <param name="manufacturer">The manufacturer of the PLC to create.</param>
-        /// <param name="logLevel">Optional: The logging level to set.</param>
-        /// <returns>An instance of type <typeparamref name="T"/> corresponding to the specified manufacturer.</returns>
-        /// <exception cref="ArgumentException">Thrown when an unsupported manufacturer is provided.</exception>
-        /// <exception cref="InvalidCastException">Thrown when the created controller cannot be cast to the type <typeparamref name="T"/>.</exception>
-        public static T CreateController<T>(Manufacturer manufacturer, LogLevel? logLevel = null) where T : class, IPLCController
-        {
-            ConfigureLogger();
-
-            // Update log level if specified
-            if (logLevel.HasValue)
+            // If no one configured the logger yet, do it with defaults
+            if (!_isLoggerConfigured)
             {
-                SetLogLevel(logLevel.Value);
+                ConfigureLogger(); // console + file, no Python sink, default level=Debug
             }
 
             IPLCController controller;
-
             switch (manufacturer)
             {
                 case Manufacturer.Siemens:
                     controller = new SiemensPLCController();
                     break;
-                // Add cases for other manufacturers here:
-                // case Manufacturer.Beckhoff:
-                //     controller = new BeckhoffPLCController();
-                //     break;
-                // case Manufacturer.Rockwell:
-                //     controller = new RockwellPLCController();
-                //     break;
+                // other manufacturers...
                 default:
                     throw new ArgumentException("Unsupported manufacturer", nameof(manufacturer));
             }
 
             if (!(controller is T typedController))
             {
-                throw new InvalidCastException($"The controller for {manufacturer} cannot be cast to {typeof(T).Name}");
+                throw new InvalidCastException(
+                    $"The controller for {manufacturer} cannot be cast to {typeof(T).Name}");
             }
 
             return typedController;

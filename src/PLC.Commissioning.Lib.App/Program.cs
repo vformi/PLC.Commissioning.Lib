@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Windows;
 using Serilog;
 using PLC.Commissioning.Lib.Enums;
 using PLC.Commissioning.Lib.Abstractions;
@@ -41,30 +43,104 @@ namespace PLC.Commissioning.Lib.App
             #region Application Workflow
             try
             {
-                using (var plc = PLCFactory.CreateController<IPLCControllerSiemens>(
-                           Manufacturer.Siemens,
-                           LogLevel.Debug))
+                // 1) Configure logger for .NET usage:
+                //    - console + file, logLevel=Information
+                //    - no Python callback
+                PLCFactory.ConfigureLogger(
+                    pythonCallback: null,
+                    writeToConsole: true,
+                    writeToFile: true,
+                    filePath: null,          // defaults to logs/log_...
+                    logLevel: LogLevel.Debug);
+                
+                // Using statement to ensure proper disposal
+                var plc = PLCFactory.CreateController<IPLCControllerSiemens>(Manufacturer.Siemens);
                 {
-                    string gsdFilePath =
-                        @"C:\Users\Legion\Documents\CODING\git\projects\dt.PLC.Commissioning.Lib\src\submodules\Siemens\src\PLC.Commissioning.Lib.Siemens.Tests\TestData\gsd\GSDML-V2.41-LEUZE-BCL248i-20211213.xml";
-                    plc.PrintGSDInformations(gsdFilePath);
-                    // configure
-                    plc.Configure(@"C:\Users\Legion\Documents\CODING\git\projects\dt.PLC.Commissioning.Lib\src\PLC.Commissioning.Lib.App\configuration.json");
-                    // initialize 
-                    plc.Initialize(safety: false);
-                    // import aml 
-                    object device = plc.ImportDevice(
-                        @"C:\Users\Legion\Documents\School\Vysoka\Magistr\DIPLOMKA\semestral_project\bcl248i_M10_M11.aml");
-                    // change ip address and profinet name
+                    // 1) Print GSD info (returns a Result)
+                    var gsdPrintResult = plc.PrintGSDInformations(
+                        @"C:\Users\Legion\Documents\CODING\git\projects\dt.PLC.Commissioning.Lib\src\submodules\Siemens\src\PLC.Commissioning.Lib.Siemens.Tests\TestData\gsd\GSDML-V2.42-LEUZE-RSL400P CU 4M12-20230816.xml");
+                    if (gsdPrintResult.IsFailed)
+                    {
+                        Console.WriteLine($"PrintGSDInformations failed: {gsdPrintResult.Errors[0].Message}");
+                        return;
+                    }
+
+                    // 2) Configure
+                    var configureResult = plc.Configure(
+                        @"C:\Users\Legion\Documents\CODING\git\projects\dt.PLC.Commissioning.Lib\src\PLC.Commissioning.Lib.App\configuration.json");
+                    if (configureResult.IsFailed)
+                    {
+                        Console.WriteLine($"Configure failed: {configureResult.Errors[0].Message}");
+                        return;
+                    }
+
+                    // 3) Initialize
+                    var initResult = plc.Initialize(safety: false);
+                    if (initResult.IsFailed)
+                    {
+                        Console.WriteLine($"Initialize failed: {initResult.Errors[0].Message}");
+                        return;
+                    }
+
+                    // 4) Import devices
+                    var gsdmlFiles = new List<string>
+                    {
+                        @"C:\Users\Legion\Documents\CODING\git\projects\dt.PLC.Commissioning.Lib\src\submodules\Siemens\src\PLC.Commissioning.Lib.Siemens.Tests\TestData\gsd\GSDML-V2.41-LEUZE-BCL248i-20211213.xml",
+                        @"C:\Users\Legion\Documents\CODING\git\projects\dt.PLC.Commissioning.Lib\src\submodules\Siemens\src\PLC.Commissioning.Lib.Siemens.Tests\TestData\gsd\GSDML-V2.42-LEUZE-RSL400P CU 4M12-20230816.xml"
+                        // add more if needed
+                    };
+
+                    var devicesResult = plc.ImportDevices(
+                        @"C:\Users\Legion\Documents\CODING\git\projects\dt.PLC.Commissioning.Lib\src\submodules\Siemens\src\PLC.Commissioning.Lib.Siemens.Tests\TestData\aml\valid_multiple_devices.aml",
+                        //@"C:\Users\Legion\Documents\School\Vysoka\Magistr\DIPLOMKA\semestral_project\same_devices.aml",
+                        gsdmlFiles);
+                    if (devicesResult.IsFailed)
+                    {
+                        Console.WriteLine($"ImportDevices failed: {devicesResult.Errors[0].Message}");
+                        return;
+                    }
+                    
+                    Dictionary<string, object> devices = devicesResult.Value;
+                    object device = devices.Last().Value;
+                    Console.WriteLine($"First device: {device}");
+
+                    // 5) Delete device
+                    // var deleteResult = plc.DeleteDevice(device);
+                    // if (deleteResult.IsFailed)
+                    // {
+                    //     Console.WriteLine($"DeleteDevice failed: {deleteResult.Errors[0].Message}");
+                    //     return;
+                    // }
+                    
+                    // 6) Configure the device with IP/profinet name
                     var deviceParams = new Dictionary<string, object>
                     {
                         { "ipAddress", "192.168.60.100" },
                         { "profinetName", "dut" }
                     };
-                    plc.ConfigureDevice(device, deviceParams);
-                    // get parameters for module 
-                    plc.GetDeviceParameters(device, gsdFilePath, "[M11] Reading gate control");
-                    // set parameters in module 
+                    var configDevResult = plc.ConfigureDevice(device, deviceParams);
+                    if (configDevResult.IsFailed)
+                    {
+                        Console.WriteLine($"ConfigureDevice failed: {configDevResult.Errors[0].Message}");
+                        return;
+                    }
+
+                    // 7) Get device parameters
+                    var getParamsResult = plc.GetDeviceParameters(device, "[M1] Safe signal", safety: true);
+                    if (getParamsResult.IsFailed)
+                    {
+                        Console.WriteLine($"GetDeviceParameters failed: {getParamsResult.Errors[0].Message}");
+                        return; 
+                    }
+                    
+                    var paramDict = getParamsResult.Value;
+                    Console.WriteLine("Retrieved parameters:");
+                    foreach (var kvp in paramDict)
+                    {
+                        Console.WriteLine($"  {kvp.Key} => {kvp.Value}");
+                    }
+
+                    // 8) Set parameters
                     var parametersToSet = new Dictionary<string, object>
                     {
                         {"Automatic reading gate repeat", "yes"},
@@ -72,14 +148,40 @@ namespace PLC.Commissioning.Lib.App
                         {"Restart delay", 333},
                         {"Max. reading gate time when scanning", 762}
                     };
-                    plc.SetDeviceParameters(device, gsdFilePath, "[M11] Reading gate control", parametersToSet);
-                    // compile 
-                    plc.Compile();
-                    // save project as (to see the changes) /Documents/Openness/Saved_projects
-                    plc.SaveProjectAs("V1"); // make sure this is deleted beforehand
-                    // debug to see if it was set properly
-                    plc.GetDeviceParameters(device, gsdFilePath, "[M11] Reading gate control");
-                    // Console.ReadKey(); // waiting point for safety showcase
+                    var setParamsResult = plc.SetDeviceParameters(device, "[M11] Reading gate control", parametersToSet);
+                    if (setParamsResult.IsFailed)
+                    {
+                        Console.WriteLine($"SetDeviceParameters failed: {setParamsResult.Errors[0].Message}");
+                        return;
+                    }
+
+                    // 9) Compile
+                    var compileResult = plc.Compile();
+                    if (compileResult.IsFailed)
+                    {
+                        Console.WriteLine($"Compile failed: {compileResult.Errors[0].Message}");
+                        return;
+                    }
+
+                    // 10) Save project again
+                    var saveAgainResult = plc.SaveProjectAs("V111");
+                    if (saveAgainResult.IsFailed)
+                    {
+                        Console.WriteLine($"SaveProjectAs failed: {saveAgainResult.Errors[0].Message}");
+                        return;
+                    }
+
+                    // 11) Read back parameters
+                    var getParamsAgainResult = plc.GetDeviceParameters(device, "[M11] Reading gate control");
+                    if (getParamsAgainResult.IsFailed)
+                    {
+                        Console.WriteLine($"GetDeviceParameters (again) failed: {getParamsAgainResult.Errors[0].Message}");
+                        return;
+                    }
+
+                    // Done
+                    Console.WriteLine("All operations completed successfully!");
+                    // Optionally, Console.ReadKey(); if you want to pause
                 }
             }
             catch (FileNotFoundException ex)
