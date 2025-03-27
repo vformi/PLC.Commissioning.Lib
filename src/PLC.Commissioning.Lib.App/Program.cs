@@ -2,12 +2,11 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Windows;
 using Serilog;
 using PLC.Commissioning.Lib.Enums;
 using PLC.Commissioning.Lib.Abstractions;
+using Newtonsoft.Json;
 using Siemens.Engineering.Download;
-using Siemens.Engineering.HW;
 
 namespace PLC.Commissioning.Lib.App
 {
@@ -15,50 +14,38 @@ namespace PLC.Commissioning.Lib.App
     {
         static void Main(string[] args)
         {
-            #region Registry Generation
-            try
-            {
-                // Define paths
-                string applicationPath = "C:\\Users\\Legion\\Documents\\CODING\\git\\projects\\dt.PLC.Commissioning.Lib\\src\\PLC.Commissioning.Lib.App\\bin\\Debug\\net48\\PLC.Commissioning.Lib.App.exe";
-                string whitelistKeyName = "PLC.Commissioning.Lib.App.exe";
-                string outputFilePath = "output.reg";
-
-                // Generate and save registry entry
-                string registryEntry = RegistryService.GenerateRegistryEntry(applicationPath, whitelistKeyName);
-                RegistryService.SaveRegistryEntryToFile(registryEntry, outputFilePath);
-
-                Log.Information("Registry entry generated and saved to {OutputFilePath}", outputFilePath);
-
-                // Execute the registry file with admin privileges
-                // commented out for now: RegistryService.ExecuteRegistryFile(outputFilePath);
-
-                Log.Information("Registry file executed successfully.");
-            }
-            catch (Exception ex)
-            {
-                Log.Error("An error occurred during registry handling: {ErrorMessage}", ex.Message);
-            }
-            #endregion
-
             #region Application Workflow
             try
             {
-                // 1) Configure logger for .NET usage:
-                //    - console + file, logLevel=Information
-                //    - no Python callback
+                // Configure logger
                 PLCFactory.ConfigureLogger(
                     pythonCallback: null,
                     writeToConsole: true,
                     writeToFile: true,
-                    filePath: null,          // defaults to logs/log_...
+                    filePath: null,
                     logLevel: LogLevel.Debug);
-                
-                // Using statement to ensure proper disposal
-                var plc = PLCFactory.CreateController<IPLCControllerSiemens>(Manufacturer.Siemens);
+
+                using (var plc = PLCFactory.CreateController<IPLCControllerSiemens>(Manufacturer.Siemens))
                 {
-                    // 1) Print GSD info (returns a Result)
-                    var gsdPrintResult = plc.PrintGSDInformations(
-                        @"C:\Users\Legion\Documents\CODING\git\projects\dt_SystemTests\fixtures\gsd\GSDML-V2.41-LEUZE-BCL348i-20211213.xml");
+                    // Define file paths from samples folder
+                    string basePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "..", "samples");
+                    string gsdFile = Path.Combine(basePath, "GSDML-V2.41-LEUZE-BCL248i-20211213.xml");
+                    string deviceList = Path.GetFullPath(Path.Combine(basePath, "sample_device.aml")); // Convert to absolute path
+                    string projectFile = Path.Combine(basePath, "Blank_project_S71200_20250303_2247.zap17");
+                    string configFile = Path.Combine(basePath, "sample_config.json");
+                    
+                    // Create sample_config.json
+                    var configData = new Dictionary<string, string>
+                    {
+                        { "projectPath", projectFile },
+                        { "networkCard", "Realtek USB GbE Family Controller" }
+                    };
+                    string jsonConfig = JsonConvert.SerializeObject(configData, Formatting.Indented);
+                    File.WriteAllText(configFile, jsonConfig);
+                    Log.Information("Created sample_config.json at {ConfigFilePath}", configFile);
+                    
+                    // 1) Print GSD info
+                    var gsdPrintResult = plc.PrintGSDInformations(gsdFile);
                     if (gsdPrintResult.IsFailed)
                     {
                         Console.WriteLine($"PrintGSDInformations failed: {gsdPrintResult.Errors[0].Message}");
@@ -66,8 +53,7 @@ namespace PLC.Commissioning.Lib.App
                     }
 
                     // 2) Configure
-                    var configureResult = plc.Configure(
-                        @"C:\Users\Legion\Documents\CODING\git\projects\dt.PLC.Commissioning.Lib\src\PLC.Commissioning.Lib.App\configuration.json");
+                    var configureResult = plc.Configure(configFile);
                     if (configureResult.IsFailed)
                     {
                         Console.WriteLine($"Configure failed: {configureResult.Errors[0].Message}");
@@ -75,7 +61,7 @@ namespace PLC.Commissioning.Lib.App
                     }
 
                     // 3) Initialize
-                    var initResult = plc.Initialize(safety: true);
+                    var initResult = plc.Initialize(safety: false);
                     if (initResult.IsFailed)
                     {
                         Console.WriteLine($"Initialize failed: {initResult.Errors[0].Message}");
@@ -83,114 +69,89 @@ namespace PLC.Commissioning.Lib.App
                     }
 
                     // 4) Import devices
-                    var gsdmlFiles = new List<string>
-                    {
-                        @"C:\Users\Legion\Documents\CODING\git\projects\dt_SystemTests\fixtures\gsd\GSDML-V2.41-LEUZE-BCL348i-20211213.xml",
-                        //@"C:\Users\Legion\Documents\CODING\git\projects\dt.PLC.Commissioning.Lib\src\submodules\Siemens\src\PLC.Commissioning.Lib.Siemens.Tests\TestData\gsd\GSDML-V2.41-LEUZE-BCL248i-20211213.xml",
-                        // add more if needed
-                    };
-                    
-                    var devicesResult = plc.ImportDevices(
-                        @"C:\Users\Legion\Documents\CODING\git\projects\dt_SystemTests\fixtures\S71500_bcl348i.aml",
-                        //@"C:\Users\Legion\Documents\School\Vysoka\Magistr\DIPLOMKA\semestral_project\same_devices.aml",
-                        //@"C:\Users\Legion\Documents\CODING\git\projects\dt.PLC.Commissioning.Lib\src\submodules\Siemens\src\PLC.Commissioning.Lib.Siemens.Tests\TestData\aml\valid_multiple_devices.aml",
-                        gsdmlFiles);
+                    var gsdmlFiles = new List<string> { gsdFile };
+                    var devicesResult = plc.ImportDevices(deviceList, gsdmlFiles);
                     if (devicesResult.IsFailed)
                     {
                         Console.WriteLine($"ImportDevices failed: {devicesResult.Errors[0].Message}");
                         return;
                     }
-                    Console.WriteLine("Waiting...");
-                    Console.ReadKey();
+
                     Dictionary<string, object> devices = devicesResult.Value;
                     object device = devices.First().Value;
                     Console.WriteLine($"First device: {device}");
-                    //
-                    // // 5) Delete device
-                    // // var deleteResult = plc.DeleteDevice(device);
-                    // // if (deleteResult.IsFailed)
-                    // // {
-                    // //     Console.WriteLine($"DeleteDevice failed: {deleteResult.Errors[0].Message}");
-                    // //     return;
-                    // // }
-                    //
-                    // 6) Configure the device with IP/profinet name
-                    // var deviceParams = new Dictionary<string, object>
-                    // {
-                    //     { "ipAddress", "192.168.60.100" },
-                    //     { "profinetName", "dut" }
-                    // };
-                    // var configDevResult = plc.ConfigureDevice(device, deviceParams);
-                    // if (configDevResult.IsFailed)
-                    // {
-                    //     Console.WriteLine($"ConfigureDevice failed: {configDevResult.Errors[0].Message}");
-                    //     return;
-                    // }
-                    var paramsToGet = new List<string> { "Code type 1", "Number of digits 1" };
-                    // 7) Get device parameters
-                    var getParamsResult = plc.GetDeviceParameters(device, "DAP", parameterSelections: paramsToGet);
-                    if (getParamsResult.IsFailed)
+
+                    // 5) Configure device
+                    var deviceParams = new Dictionary<string, object>
                     {
-                        Console.WriteLine($"GetDeviceParameters failed: {getParamsResult.Errors[0].Message}");
-                        return; 
+                        { "ipAddress", "192.168.60.100" },
+                        { "profinetName", "dut" }
+                    };
+                    var configDevResult = plc.ConfigureDevice(device, deviceParams);
+                    if (configDevResult.IsFailed)
+                    {
+                        Console.WriteLine($"ConfigureDevice failed: {configDevResult.Errors[0].Message}");
+                        return;
                     }
-                    
-                    Console.WriteLine("Waiting...");
-                    Console.ReadKey();
-                    // var paramDict = getParamsResult.Value;
-                    // Console.WriteLine("Retrieved parameters:");
-                    // foreach (var kvp in paramDict)
-                    // {
-                    //     Console.WriteLine($"  {kvp.Key} => {kvp.Value}");
-                    // }
-                    //
-                    // // 8) Set parameters
+
+                    // 6) Get parameters before set
+                    var paramsBefore = plc.GetDeviceParameters(device, "[M11] Reading gate control");
+                    if (paramsBefore.IsFailed)
+                    {
+                        Console.WriteLine($"GetDeviceParameters failed: {paramsBefore.Errors[0].Message}");
+                        return;
+                    }
+
+                    // 7) Set parameters
                     var parametersToSet = new Dictionary<string, object>
                     {
-                        {"Code type 1", "2/5 Interleaved"},
-                        {"Number of digits 1", 10},
-                        {"Code type 2", "UPC, UPCE"},
-                        {"Code type 3", "GS1 Data Bar EXPANDED"},
-                        {"Code type 4", "11"},
+                        {"Automatic reading gate repeat", "yes"},
+                        {"Reading gate end mode / completeness mode", "Ident List dependent"},
+                        {"Restart delay", 333},
+                        {"Max. reading gate time when scanning", 762}
                     };
-                    // var setParamsResult = plc.SetDeviceParameters(device, "DAP", parametersToSet);
-                    // if (setParamsResult.IsFailed)
-                    // {
-                    //     Console.WriteLine($"SetDeviceParameters failed: {setParamsResult.Errors[0].Message}");
-                    //     return;
-                    // }
-                    //
-                    // // 9) Compile
-                    // var compileResult = plc.Compile();
-                    // if (compileResult.IsFailed)
-                    // {
-                    //     Console.WriteLine($"Compile failed: {compileResult.Errors[0].Message}");
-                    //     return;
-                    // }
-                    //
-                    // // 10) Save project again
-                    // var saveAgainResult = plc.SaveProjectAs("V111");
-                    // if (saveAgainResult.IsFailed)
-                    // {
-                    //     Console.WriteLine($"SaveProjectAs failed: {saveAgainResult.Errors[0].Message}");
-                    //     return;
-                    // }
-                    //
-                    // // 11) Read back parameters
-                    // var getParamsAgainResult = plc.GetDeviceParameters(device, "[M11] Reading gate control");
-                    // if (getParamsAgainResult.IsFailed)
-                    // {
-                    //     Console.WriteLine($"GetDeviceParameters (again) failed: {getParamsAgainResult.Errors[0].Message}");
-                    //     return;
-                    // }
-                    //
-                    // // Done
-                    // Console.WriteLine("All operations completed successfully!");
-                    // // Optionally, Console.ReadKey(); if you want to pause
-                    plc.Compile();
-                    plc.Download(DownloadOptions.Hardware | DownloadOptions.Software);
+                    var setParamsResult = plc.SetDeviceParameters(device, "[M11] Reading gate control", parametersToSet);
+                    if (setParamsResult.IsFailed)
+                    {
+                        Console.WriteLine($"SetDeviceParameters failed: {setParamsResult.Errors[0].Message}");
+                        return;
+                    }
+
+                    // 8) Get parameters after set
+                    var paramsAfter = plc.GetDeviceParameters(device, "[M11] Reading gate control");
+                    if (paramsAfter.IsFailed)
+                    {
+                        Console.WriteLine($"GetDeviceParameters failed: {paramsAfter.Errors[0].Message}");
+                        return;
+                    }
+                    Console.WriteLine($"Retrieved device parameters after update: {paramsAfter.Value}");
+
+                    // 9) Compile
+                    var compileResult = plc.Compile();
+                    if (compileResult.IsFailed)
+                    {
+                        Console.WriteLine($"Compile failed: {compileResult.Errors[0].Message}");
+                        return;
+                    }
+                    
+                    // 10) Download
+                    var downloadResult = plc.Download(DownloadOptions.Hardware | DownloadOptions.Software);
+                    if (downloadResult.IsFailed)
+                    {
+                        Console.WriteLine($"Download failed: {downloadResult.Errors[0].Message}");
+                        return;
+                    }
+
+                    // 11) Save project
+                    var saveResult = plc.SaveProjectAs("DotnetTest");
+                    if (saveResult.IsFailed)
+                    {
+                        Console.WriteLine($"SaveProjectAs failed: {saveResult.Errors[0].Message}");
+                        return;
+                    }
+
+                    Console.WriteLine("All operations completed successfully!");
                 }
-                plc.Dispose();
             }
             catch (FileNotFoundException ex)
             {
