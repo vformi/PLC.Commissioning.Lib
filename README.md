@@ -85,18 +85,22 @@ dotnet tool install -g dotnet-ilrepack
 ```bash
 dotnet build -c Release
 ```
-After running the build, a ilrepack.rsp file will be created in the bin\Release\netstandard2.0 directory.
+After running the build, a ilrepack.rsp file will be created in the `bin\Release\netstandard2.0` directory.
 This file contains the list of all .dll files to be merged, excluding the already merged output.
 ### Steps to reproduce
-1. Build the project:
+1. Navigate to proper directory
+```bash
+cd PLC.Commissioning.Lib
+```
+2. Build the project:
 ```bash
 dotnet build -c Release
 ```
-2. Navigate to the output directory:
+3. Navigate to the output directory:
 ```bash
 cd bin\Release\netstandard2.0
 ```
-3. Run the ilrepack command:
+4. Run the ilrepack command:
 ```bash
 ilrepack /out:PLC.Commissioning.Lib.Merged.dll "@ilrepack.rsp"
 ```

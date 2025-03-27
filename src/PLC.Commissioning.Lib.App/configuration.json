@@ -1,5 +1,10 @@
+//{
+//  //"projectPath": "C:\\Users\\Legion\\Documents\\Automation\\Blank_project_S71200\\Blank_project_S71200.ap17",
+//  "projectPath": "C:\\Users\\Legion\\Desktop\\Vojta\\Blank_Project_S71200\\Blank_Project_S71200.ap17",
+//  "networkCard": "ASIX AX88772B USB2.0 to Fast Ethernet Adapter"
+//}
+
 {
-  "projectPath": "C:\\Users\\Legion\\Documents\\Automation\\Blank_project_S71200\\Blank_project_S71200.ap17",
-  //"projectPath": "C:\\Users\\vformane\\OneDrive - Leuze electronic GmbH + Co. KG\\Osobní\\Diplomka\\Siemens\\Blank_project\\Blank_project.ap17",
-  "networkCard": "Realtek USB GbE Family Controller"
+  "projectPath": "C:\\Users\\Legion\\Documents\\Automation\\Blank_Project_S71500\\Blank_Project_S71500.ap17",
+  "networkCard": "ASIX AX88772B USB2.0 to Fast Ethernet Adapter"
 }
