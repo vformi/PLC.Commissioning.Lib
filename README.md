@@ -6,7 +6,7 @@ This repository contains the main library for commissioning PLCs and includes li
 
 ## Prerequisites
 - **Operating System**: **Windows** (required)
-    - The TIA Portal is only supported on Windows, so this library requires a Windows platform to function properly.
+    - The TIA Portal is "only" supported on Windows, so this library requires a Windows platform to function properly.
 - **TIA Portal and TIA Portal Openness**: TIA Portal (with TIA Openness enabled) must be installed on the system, as the library interacts directly with the TIA Portal software for PLC commissioning and testing.
     - Ensure that you have the necessary permissions, including membership in the **Siemens TIA Openness** Windows group, to allow programmatic access to TIA Portal functionalities. 
   > **Note**: The library was developed on TIA Portal V17, but exploratory testing was conducted against versions ranging from V17 up to V20. While not a deep test of all methods, the core functionality was verified to work in these newer versions, 
@@ -126,3 +126,5 @@ cd bin\Release\netstandard2.0
 ```bash
 ilrepack /out:PLC.Commissioning.Lib.Merged.dll "@ilrepack.rsp"
 ```
+---
+Note: The merged DLL (`PLC.Commissioning.Lib.Merged.dll`) includes only this project’s code and MIT-licensed dependencies. Proprietary Siemens Openness DLLs (e.g., Siemens.Engineering.dll) remain external and must be provided by the user’s TIA Portal installation.
